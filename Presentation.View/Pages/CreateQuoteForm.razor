@@ -1,0 +1,44 @@
+﻿@page "/Authors/{authorId}"
+
+@using static Application.Status
+@using Application.QuotesMediator.Add
+@using MediatR
+@using Presentation.View.Data
+@inject IMediator _mediator
+
+<div class="rounded-1">
+<EditForm Model="@_quoteCreationForm" OnSubmit="@AddAuthorsQoute">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText class="text-field__btn" id="name" @bind-Value="@_quoteCreationForm.Text" />
+    <button class="text-field__btn" type="submit">Submit</button>
+</EditForm>        
+@{
+    if(_message is not null)
+    {
+        <div class="alert_text">_message</div>
+    }
+}
+</div>
+
+
+@code {
+    [Parameter] 
+    public string AuthorId { get; set; }
+    private QuoteCreationForm _quoteCreationForm = new();
+    private string _message;
+
+    private async Task AddAuthorsQoute()
+    {
+        _message = null;
+        if (_quoteCreationForm.Text is null)
+            return;
+        var response = await _mediator.Send(new AddQuoteCommand(Guid.Parse(AuthorId), _quoteCreationForm.Text));
+        _message = response.Status switch
+        {
+            BadInput => "Wrong input!",
+            KeyIsOccupied => "Author name is occupied!",
+            SuccessCreated => "Success created"
+        };
+    }
+}

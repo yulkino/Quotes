@@ -1,0 +1,86 @@
+﻿@page "/Authors/{authorId}"
+@using static Application.Status
+@using Application.QuotesMediator.Get
+@using AutoMapper
+@using MediatR
+@inject IMediator _mediator
+@inject IMapper _mapper
+
+
+<button @onclick="(() => AddQuote(AuthorId))"
+    data-toggle="modal" class="btn btn-warning">
+    Create quote
+</button>
+<br />
+<br />
+@if(_message is not null)
+{
+    <text>@_message</text>
+}
+else
+{
+    if(_quoteDtos is not null)
+    {
+        <div class="card-columns">
+        @foreach (var quote in _quoteDtos)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@quote.Text</h5>
+                </div>
+                <div class="card-footer">
+                    <button @onclick="(() => EditQuote(quote.Id))"
+                        data-toggle="modal" class="btn btn-outline-primary">
+                        Edit
+                    </button>
+                    <button @onclick="(() => DeleteQuote(quote.Id))"
+                        data-toggle="modal" class="btn btn-outline-danger">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        }
+        </div>
+    }
+}
+
+@code {
+    [Parameter] 
+    public string AuthorId { get; set; }
+
+    private List<QuoteDto> _quoteDtos { get; set; }
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new GetQuotesListQuery(Guid.Parse(AuthorId)));
+        switch (response.Status )
+        {
+            case (DoesNotExist): 
+                _message = "This author does not exist";
+                break;
+            case Success:
+                _quoteDtos = _mapper.Map<List<QuoteDto>>(response.Result);
+                if(_quoteDtos.Count == 0)
+                {
+                    _message = "This author has no quotes";
+                }
+                break;
+        };
+    }
+
+    private void AddQuote(string authorId)
+    {
+
+    }
+
+    private void EditQuote(Guid quoteId)
+    {
+
+    }
+
+    private void DeleteQuote(Guid auoteId)
+    {
+        
+    }
+}

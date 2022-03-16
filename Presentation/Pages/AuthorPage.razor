@@ -1,0 +1,39 @@
+﻿@page "/Authors/{authorId:Guid}"
+@using static Application.Status
+@using Application.QuotesMediator.Get
+@using AutoMapper
+@using MediatR
+@inject IMediator _mediator
+@inject IMapper _mapper
+
+<h3>AuthorPage</h3>
+@if(_message is not null)
+{
+    <span>@_message</span>
+}
+else
+{
+
+}
+
+@code {
+    [Parameter] 
+    public Guid Id { get; set; }
+
+    private List<QuoteDto>? _quoteDtos;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _mediator.Send(new GetQuotesListQuery(Id));
+        switch (response.Status )
+        {
+            case (DoesNotExist): 
+                _message = "This author has no quotes";
+                break;
+            case Success:
+                _quoteDtos = _mapper.Map<List<QuoteDto>>(response.Result);
+                break;
+        };
+    }
+}

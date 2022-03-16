@@ -1,0 +1,57 @@
+﻿@using Application.AuthorMediator.Get
+@using AutoMapper
+@using MediatR
+@inject IMediator mediator
+@inject IMapper mapper
+@inject NavigationManager NavigationManager
+
+<div class="card-columns">
+    @foreach (var author in Authors)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@author.Name</h5>
+            </div>
+            <div class="card-footer">
+                <button @onclick="(() => SeeTheQuotes(author.Id))"
+                    data-toggle="modal" class="btn btn-warning">
+                    See quotes
+                </button>
+                <button @onclick="(() => EditAuthor(author.Id))"
+                    data-toggle="modal" class="btn btn-outline-primary">
+                    Edit
+                </button>
+                <button @onclick="(() => DeleteAuthor(author.Id))"
+                    data-toggle="modal" class="btn btn-outline-danger">
+                    Delete
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AuthorDto> Authors { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = await mediator.Send(new GetAuthorsListQuery());
+        Authors = mapper.Map<List<AuthorDto>>(query.Result);
+    }
+
+    private void SeeTheQuotes(Guid authorId)
+    {
+        NavigationManager.NavigateTo($"/Authors/{authorId}");
+    }
+
+    private void EditAuthor(Guid id)
+    {
+        
+    }
+
+    private void DeleteAuthor(Guid id)
+    {
+        
+    }
+}
